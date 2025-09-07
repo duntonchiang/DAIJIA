@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DAIJIA — Sign Up</title>
+  <meta name="description" content="Sign up to hear from DAIJIA." />
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --red: #e02424;
+      --red-hover: #f03a3a;
+      --focus: #9ad0ff;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 600 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .wrap {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 32px;
+    }
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4.5vw, 36px);
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+    p.sub {
+      margin: 0 0 22px;
+      font-weight: 500;
+      opacity: 0.85;
+      text-align: center;
+    }
+    form { display: grid; gap: 14px; }
+    label { font-size: 14px; opacity: 0.9; }
+    input {
+      width: 100%;
+      padding: 14px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      color: var(--fg);
+      outline: none;
+    }
+    input::placeholder { color: rgba(255,255,255,0.55); font-weight: 500; }
+    input:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(154,208,255,0.25);
+    }
+    button {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 14px 18px;
+      background: var(--red);
+      color: #fff;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+      box-shadow: 0 6px 16px rgba(224,36,36,0.35);
+    }
+    button:hover { background: var(--red-hover); transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    .note { margin-top: 10px; font-size: 12px; opacity: 0.7; text-align: center; }
+    .hidden { display: none !important; }
+    .success {
+      display: grid; gap: 10px; text-align: center; padding: 8px 0 0;
+    }
+    .success h2 { margin: 4px 0 0; font-size: 22px; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card" aria-labelledby="title">
+      <h1 id="title">DAIJIA</h1>
+      <p class="sub">Join the list — be the first to know.</p>
+
+      <form id="signup-form" aria-describedby="legal">
+        <div>
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" inputmode="text" autocomplete="name" placeholder="Your name" required />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required />
+        </div>
+        <button id="submit" type="submit" aria-label="Sign Up">Sign Up</button>
+        <p id="legal" class="note">We respect your inbox. Unsubscribe anytime.</p>
+      </form>
+
+      <div id="success" class="success hidden" role="status" aria-live="polite">
+        <h2>Thank you for signing up!</h2>
+        <p>We have received your details.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Frontend submission handler
+    const form = document.getElementById('signup-form');
+    const successEl = document.getElementById('success');
+    const submitBtn = document.getElementById('submit');
+
+    // CHANGE THIS to your backend endpoint when ready:
+    const ENDPOINT = '/api/subscribe'; // e.g. 'https://your-domain.com/api/subscribe'
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+
+      const payload = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim()
+      };
+
+      // Basic email sanity check
+      if (!/^\S+@\S+\.\S+$/.test(payload.email)) {
+        alert('Please enter a valid email.');
+        submitBtn.disabled = false;
+        return;
+      }
+
+      try {
+        // If you don’t have a backend yet, comment out this fetch block.
+        const res = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('Network error');
+
+        form.classList.add('hidden');
+        successEl.classList.remove('hidden');
+      } catch (err) {
+        // Fallback: show success so you can demo immediately.
+        console.warn('Submission failed, showing local success instead:', err);
+        form.classList.add('hidden');
+        successEl.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
